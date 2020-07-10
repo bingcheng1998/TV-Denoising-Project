@@ -13,16 +13,33 @@ import os
 
 img_list = ['shape3.bmp','cameraman.bmp','barbara.bmp','barbarasmall.bmp', 'elaine.bmp','horse.bmp','satellite.bmp','shape1.bmp']
 
+def marginImage(im_array):
+    large_im = np.zeros((im_array.shape[0]+2 ,im_array.shape[1]+2))
+    large_im[1:im_array.shape[0]+1 ,1:im_array.shape[1]+1] = im_array[:,:]
+    large_im[0:1,1:-1] = im_array[0:1,:]
+    large_im[-1:,1:-1] = im_array[-1:,:]
+    large_im[1:-1,0:1] = im_array[:,0:1]
+    large_im[1:-1,-1:] = im_array[:,-1:]
+    
+#     large_im[-1:,1:-1] = [random.random() for i in range(im_array.shape[0])]
+#     large_im[1:-1,-1:] = random.random()
+
+#     large_im[-1:,1:-1] = 0.5
+#     large_im[1:-1,-1:] = 0.5
+#     large_im[0,0],large_im[0,-1],large_im[-1,0],large_im[-1,-1]  = im_array[0,0],im_array[0,-1],im_array[-1,0],im_array[-1,-1]
+    large_im[0,0],large_im[0,-1],large_im[-1,0],large_im[-1,-1]  = im_array[0,0],0.5,0.5,0.5
+    return large_im
+
 def original(order = 0):
     im = Image.open('./img/'+img_list[order])
     im_array = np.array(im)
-    im_array = im_array.astype(np.float64)
-    return im_array/255
+    im_array = im_array.astype(np.float64)/255
+    large_im = marginImage(im_array)
+    
+    return large_im
 
 def original255(order = 0):
-    im = Image.open('./img/'+img_list[order])
-    im_array = np.array(im)
-    im_array = im_array.astype(np.float64)
+    im_array = original(order)*255
     return im_array
 
 def gaussNoised(order = 0, sigma = 25):
@@ -66,9 +83,8 @@ def saltNoised(order = 0, salt_percent = 0.05, salt_color = 255):
 #     im_array = im_array.astype(np.uint8)
 #     im_show = Image.fromarray(im_array)
 #     return im_show
-def showImg(im_array):
-#     print(im_array.min())
-#     im_array = im_array - im_array.min()
+def showImg(im_array_large, margin = False):
+    im_array = im_array_large[1:im_array_large.shape[0]-1 ,1:im_array_large.shape[1]-1] if not margin else im_array_large
     for i in range(im_array.shape[0]):
         for j in range(im_array.shape[1]):
             if im_array[i][j] < 0:
@@ -81,9 +97,9 @@ def showImg(im_array):
     im_show = Image.fromarray(im_array)
     return im_show
 
-def inlineImg(x_local, title = None, dpi = 84):
+def inlineImg(x_local, title = None, margin=False, dpi = 84, ):
     plt.rcParams['figure.dpi'] = dpi
-    plt.imshow(showImg(x_local),cmap='gray')
+    plt.imshow(showImg(x_local, margin),cmap='gray')
     plt.axis('off')
     if title is not None:
         plt.title(title) # 图像题目

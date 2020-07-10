@@ -15,7 +15,7 @@
 %     \usepackage[final]{neurips_2020}
 
 % to avoid loading the natbib package, add option nonatbib:
-     \usepackage[]{neurips_2020}
+	\usepackage[]{neurips_2020}
 
 \usepackage[utf8]{inputenc} % allow utf-8 input
 \usepackage[T1]{fontenc}    % use 8-bit T1 fonts
@@ -350,6 +350,8 @@ To show the speed of convergence, $f(x^{k})$ vs. time and  $f(x^{k})$ vs. iterat
   \label{img9}
 \end{figure}
 
+\section{Optimization of the TV algorithm}
+
 
 \subsection{Implement the Nesterov Acceleration to Accelerate Gradient Descent}
 
@@ -436,7 +438,25 @@ Comparing $f(x^{k})$ vs. iteration for gradient descent and gradient descent acc
 \end{figure}
 
 
-\section{Optimization of the TV algorithm}
+\subsection{Implement the Stochastic Method to Accelerate Gradient Descent}
+
+Because there are many pixels in one single image, it would be difficult to calculate the best discent direction, and for one direction, the step size would not be the best legth for every pixels.
+
+To make the selection of step size more efficiet, it could be better to take aprt the single image to multiple small images, and then do gradient discent for every small image seperatly.
+
+A simple solution is to splite a image to multiple n by n rectagles, and according to in figure \ref{img5}, there should be a margin as a helper to calculate the differentiation of the center splited images. 
+
+To make the process simpler and easy to understand, we define one iteration as one full polling of all splitted blocks. And there will always process all blocks one by one with no multiprocess, which means in this case, the time would be real time that needed to finish all the calculations without any trick.
+
+First, let me to introduce you the $f(x^{k})$ vs. time and  $f(x^{k})$ vs. iteration k are presented to show the speed of convergence, in figure \ref{img16} and figure \ref{img17}, compared with the general gradient discent and the gradient discent accelarated by Nesterov method.
+
+\begin{figure}[h]
+  \includegraphics[width=3.5in]{pic15.png}
+  \centering
+  \caption{Comparision of $f(x^{k})$ vs. iteration k for gradient descent and gradient descent accelerated by Nesterov method.}
+  \label{img15}
+\end{figure}
+
 
 \section{Conclusion}
 
