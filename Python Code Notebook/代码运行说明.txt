@@ -1,0 +1,19 @@
+自行编写的库文件：
+img.py
+jpg2bmp.py
+
+带有运行结果的jupyter notebook 文件：
+GD_general.ipynb 普通梯度下降
+GD_Nesterov.ipynb Nesterov加速梯度下降
+GD_stochastic.ipynb stochastic加速梯度下降
+GD_largeSize_stochastic.ipynb 大规模问题
+Parallel Computing.ipynb 并行计算
+
+临时数据存储文件夹
+pickle
+
+原始图像文件夹
+img
+
+生成图片文件夹
+gen-img

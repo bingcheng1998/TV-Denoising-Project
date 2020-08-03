@@ -15,7 +15,7 @@
 %     \usepackage[final]{neurips_2020}
 
 % to avoid loading the natbib package, add option nonatbib:
-	\usepackage[]{neurips_2020}
+     \usepackage[]{neurips_2020}
 
 \usepackage[utf8]{inputenc} % allow utf-8 input
 \usepackage[T1]{fontenc}    % use 8-bit T1 fonts
@@ -352,7 +352,6 @@ To show the speed of convergence, $f(x^{k})$ vs. time and  $f(x^{k})$ vs. iterat
 
 \section{Optimization of the TV algorithm}
 
-
 \subsection{Implement the Nesterov Acceleration to Accelerate Gradient Descent}
 
 To accelerate the speed of convergence, Nesterov acceleration is chosen as the speed-up algorithm. And the thinking of methods is shown below.
@@ -437,28 +436,156 @@ Comparing $f(x^{k})$ vs. iteration for gradient descent and gradient descent acc
   \label{img15}
 \end{figure}
 
-
 \subsection{Implement the Stochastic Method to Accelerate Gradient Descent}
 
-Because there are many pixels in one single image, it would be difficult to calculate the best discent direction, and for one direction, the step size would not be the best legth for every pixels.
+Because there are many pixels in one single image, it would be difficult to calculate the best descent direction, and for one direction, the step size would not be the best length for every pixel.
 
-To make the selection of step size more efficiet, it could be better to take aprt the single image to multiple small images, and then do gradient discent for every small image seperatly.
+To make the selection of step size more efficient, it could be better to take apart the single image to multiple small images, and then do gradient descent for every small image separately.
 
-A simple solution is to splite a image to multiple n by n rectagles, and according to in figure \ref{img5}, there should be a margin as a helper to calculate the differentiation of the center splited images. 
+A simple solution is to split an image to multiple n by n rectangles, and according to figure \ref{img5}, there should be a margin as a helper to calculate the differentiation of the center split images. 
 
-To make the process simpler and easy to understand, we define one iteration as one full polling of all splitted blocks. And there will always process all blocks one by one with no multiprocess, which means in this case, the time would be real time that needed to finish all the calculations without any trick.
+To make the process simpler and easy to understand, we define one iteration as one full polling of all split blocks. And there will always process all blocks one by one with no multiprocess, which means in this case, the time would be the real time that needed to finish all the calculations without any trick.
 
 First, let me to introduce you the $f(x^{k})$ vs. time and  $f(x^{k})$ vs. iteration k are presented to show the speed of convergence, in figure \ref{img16} and figure \ref{img17}, compared with the general gradient discent and the gradient discent accelarated by Nesterov method.
 
 \begin{figure}[h]
-  \includegraphics[width=3.5in]{pic15.png}
+  \includegraphics[width=3.5in]{pic16.png}
   \centering
-  \caption{Comparision of $f(x^{k})$ vs. iteration k for gradient descent and gradient descent accelerated by Nesterov method.}
-  \label{img15}
+  \caption{Comparision of $f(x^{k})$ vs. time for gradient descent, gradient descent accelerated by the Nesterov method, and gradient descent accelerated by the Stochastic method.}
+  \label{img16}
 \end{figure}
 
+\begin{figure}[h]
+  \includegraphics[width=3.5in]{pic17.png}
+  \centering
+  \caption{Comparision of $f(x^{k})$ vs. iteration k for gradient descent, gradient descent accelerated by the Nesterov method, and gradient descent accelerated by the Stochastic method.}
+  \label{img17}
+\end{figure}
 
+As you can see in figure \ref{img16}, the overall time of 100 iterations for Gradient descent with the stochastic method is longer than the previous two methods, this is because there need to calculate the best step size with exact line search for $(k/n)^2$ times, where $k$ is the length of the image, and $n$ is the size of the block you choose. Though the calculation of the best step size is much more than the previous two solutions, it works better when time is long enough. This is because when some block with a low score has already reached its best state, there can be many other blocks that can be improved largely without being affected by those already converged blocks.
+
+Considering figure \ref{img16}, we can get the same conclusion, but due to the inconsistency of the time and iteration of the stochastic method, it’s better to consider only the  $f(x^{k})$ vs. time figure.
+
+Second, How will the block size $n$ affect the speed of convergence? Here the size $n$ means the block is $n \times n$ block. The block size 2, 4, 8, 16 are considered in the experiemnt. let me to introduce you the $f(x^{k})$ vs. time and  $f(x^{k})$ vs. iteration k are presented to show the speed of convergence, in figure \ref{img18} and figure \ref{img19},
+
+\begin{figure}[h]
+  \includegraphics[width=3.5in]{pic18.png}
+  \centering
+  \caption{Comparision of $f(x^{k})$ vs. time for gradient descent accelerated by the Stochastic method with block size 2, 4, 8, 16.}
+  \label{img18}
+\end{figure}
+
+\begin{figure}[h]
+  \includegraphics[width=3.5in]{pic19.png}
+  \centering
+  \caption{Comparision of $f(x^{k})$ vs. iteration k for gradient descent accelerated by the Stochastic method with block size 2, 4, 8, 16.}
+  \label{img19}
+\end{figure}
+
+Considering the  $f(x^{k})$ vs. iteration k figure, it can be found that the speed of convergence increased as the size of block decreased. This is because the smaller the block size, the easier the best step size can reach its minimal value, and then the faster the image to fit its denoised state. However, looking at figure  \ref{img18}, it will be found that the overall time for 100 iterations is very different for those block sizes. 
+
+According to figure \ref{img18}, the speed of convergence is fastest for block size 2, but the overall time for block sez 2 is the longest, which is almost the double of block size 4, or three times longer than the block size 8. The block size 4 will cause the shortest overall time, and enlarge or reduce the size of the block will both cause the overall time to be longer.
+
+For all the previous experiments, the number of $\lambda$ is 0.9. This is because for gradient descent and gradient descent accelerated by the Nesterove method are both slow, which means for small $\lambda$ like 0.1, 0.2, 0.5, the noised image cannot converge as fast as the user wants. But for the stochastic method, the speed of convergence is fast, which causes the noised image being over-denoised, as shown in figure \ref{img20}.
+
+\begin{figure}[h]
+  \includegraphics[width=5.5in]{pic20.png}
+  \centering
+  \caption{The original image, noised image, and three images are the denoised image with iteration 1, 10, and 100 with gradient descent accelerated by the Stochastic method with block size 4, 8, and 16.}
+  \label{img20}
+\end{figure}
+
+As you can see, as the decrease of block size, the noised image being smother faster, but for block size 8 and 4, they are over-denoised. In this case, what we need to do is to decrease $\lambda$, and by experiment, $\lambda=0.1$ works well for block size 8 and 4.
+
+\section{Large scale problem}
+
+\subsection{The Weighted Stochastic method}
+Stochastic method can significantly accelerate the denoising algorithm, which makes it possible to solve large-scale problems. But this method still takes more than 10 seconds to process a small 256x256 monochrome photo, which is unacceptable in practical applications. Therefore, we need a faster denoising method.
+
+In practice, we found that for the stochastic method, the initial score of different windows is different, and the degree of difference of the points in the window can be judged by the initial score of the window. In order to make this theory simple and easy to understand, according to figure \ref{img21}, it can be found that for window sizes are 2x2, 4x4, 8x8, 16x16, 32x32, the place where is whiter is always the same place.
+
+So we can sort the weights according to the color of the grid. A light-colored square means high weight. Those with high weight perform a few more operations when denois, and those with low weight do less operations. In order to achieve this goal, the random sampling method is selected, and the denois block is required to sample.
+\begin{figure}[h]
+  \includegraphics[width=5.5in]{pic21.png}
+  \centering
+  \caption{the scored figure of the “Camera Man” with different window size. (From left to right, the window sizes are 2x2, 4x4, 8x8, 16x16, 32x32).}
+  \label{img21}
+\end{figure}
+
+\subsection{Random sampling for the Weighted Stochastic method}
+The weight calculation method is shown below. First, the statistics are performed, and the statistical results are shown in the histogram (Figure \ref{img22}). By observing the figure \ref{img22}(a), (b), (c) and (d), you can find the score distribution of the square. It is an approximately normal distribution. The score is concentrated in the middle area, so the number of squares with a higher score is relatively small. The benefits of denoising these blocks with high scores will be greater than the benefits of denoising blocks with lower scores.
+\begin{figure}[h]
+  \includegraphics[width=5.5in]{pic22.jpg}
+  \centering
+  \caption{The score distribution of one figure with different window size (From (a) to (d), the window sizes are 2x2, 4x4, 8x8, 16x16, 32x32) and the plot on one single graph (e).}
+  \label{img22}
+\end{figure}
+By observing the figure \ref{img22}(d), it can be found that the larger the window size, the higher the score. Therefore, a function is needed to correct the histogram so that the score is not too high for the high score and not too low for the low score. Finally, perform denoising calculation after sampling according to weight. Or the total number of running squares is the total number of image squares set as 1 iteration.
+
+The random sampling algorithm based on the score is as follows.
+\begin{python}
+def getProbArray(x, f, fun, lambda_, side):
+    weight = getWeightTable(x, f, fun, lambda_, side)
+    max_w = weight.max()
+    min_w = weight.min()
+    hist_data = np.array(weight)
+    hist_data=(hist_data+hist_data.mean())
+    hist_data=hist_data/hist_data.sum()
+    prob_list = []
+    pos_list = []
+    for i in range(hist_data.shape[0]):
+        for j in range(hist_data.shape[1]):
+            pos_list.append([i,j])
+            prob_list.append(hist_data[i,j])
+    return pos_list, prob_list
+  
+  def randomChoise(pos_list, prob_list):
+    p = np.array(prob_list)
+    index = np.random.choice(list(range(len(prob_list))), p = p.ravel())
+    return pos_list[index]
+\end{python}
+
+\subsection{Parallel Computing}
+For large-scale problems, parallel computing is a good way to increase speed. For large images, we first need to split the color of the image. As shown in figure \ref{img23}, layer the color image according to the red, green and blue layers to get three monochrome images. But these monochrome pictures are still very large, so parallel computing is needed to increase the speed.
+\begin{figure}[h]
+  \includegraphics[width=3.5in]{pic23.png}
+  \centering
+  \caption{Layer the color pictures according to the RGB layers to get three monochrome pictures.}
+  \label{img23}
+\end{figure}
+For large-scale problems, distributed computing is required. Parallel computing can be simply defined as using multiple computing resources to solve a computing problem at the same time. Because we use the stochastic method, the denoising problem can be broken down into discrete and concurrently solvable parts. By cutting the big picture into multiple windows of equal size, and then grouping these windows into different computer cores for calculation. The result is that each part of the instructions are executed simultaneously on different CPUs.
+
+My computer is MacBook Pro 2015 (2 Cores, 2.7 GHz). Because there is only 2 cores, we can only use 2 process to do parallel computing.
+
+Therefore, my python program divides the windows generated by the picture into two groups, and hands them to the two system cores for python parallel calculation. After the picture is divided into blocks, the windows are grouped according to high and low strength, and try to divide them into two groups with the same total score as much as possible. Then the two groups are calculated separately on different calculations and cores, and each round of calculation is completed and merged. For multiple computers or computers with multiple cores, you can get faster speeds. Figure \ref{img24} shows the acceleration method when multiple cores are used.
+
+\begin{figure}[h]
+  \includegraphics[width=3.5in]{pic24.png}
+  \centering
+  \caption{Schematic diagram of parallel calculation of denoising algorithm accelerated by weighted stochastic method.}
+  \label{img24}
+\end{figure}
+
+\subsection{Comparison of gradient descent and gradient descent accelerated by Parallel Computing method}
+First, the $f(x^{k})$ vs. time and  $f(x^{k})$ vs. iteration k are presented to show the speed of convergence, in figure \ref{img25} and figure \ref{img26}, compared with the general gradient descent, gradient descent accelerated by the Nesterov method, gradient descent accelerated by the Stochastic method. Figure \ref{img25} shows that the total time of parallel calculation will be faster than single-core calculation, but comparing figure \ref{img26}, it can be found that there is no significant improvement in $f(x^{k})$ vs. iteration k. This is normal, because parallel computing does not reduce the amount of calculation required, but only reduces the required calculation time. However, it is found in figure \ref{img25} that the time reduction of parallel computing is not as normal, only about a quarter of the original. This is because a single host is performing parallel computing while also having other computing tasks. So the final conclusion is that parallel computing can indeed reduce the total calculation time required.
+\begin{figure}[h]
+  \includegraphics[width=3.5in]{pic25.png}
+  \centering
+  \caption{Comparison of $f(x^{k})$ vs. time for gradient descent, gradient descent accelerated by the Nesterov method, gradient descent accelerated by the Stochastic method, and gradient descent accelerated by the weighted Stochastic method.}
+  \label{img25}
+\end{figure}
+\begin{figure}[h]
+  \includegraphics[width=3.5in]{pic26.png}
+  \centering
+  \caption{Comparison of $f(x^{k})$ vs. time for gradient descent, gradient descent accelerated by the Nesterov method, gradient descent accelerated by the Stochastic method, and gradient descent accelerated by the weighted Stochastic method.}
+  \label{img26}
+\end{figure}
 \section{Conclusion}
+In this project, a variety of algorithms are applied to the field of image denoising. From the simplest gradient descent to various gradient descent acceleration algorithms, such as Nesterov and stochastic acceleration algorithms. Finally, parallel computing was tried to speed up the computing speed. Through these algorithms, the importance of optimization algorithms is understood. This project helped me understand the optimization algorithm and its practical application more deeply.
+
+The code of this project is based on python3.6 and can run on higher versions of python. The operating environment is MacOS, and after testing, the same effect can be achieved on Linux. However, some parallel computing part of the code cannot run on windows. All codes are developed on the Jupyter Lab platform, which can be visually edited in real-time and save time.
+
+Finally, I would like to appreciate Professor Huang for teaching the wonderful class and answering my questions, and thanks all TAs for their help!
 
 
 \bibliographystyle{plainnat}
